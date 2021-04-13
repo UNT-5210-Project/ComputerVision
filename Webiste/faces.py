@@ -13,7 +13,9 @@ graph = tf.compat.v1.get_default_graph()
 set_session(sess)
 face_classifier=cv2.CascadeClassifier('static/haarcascade_frontalface_default.xml')
 
-pred_list = ['anger','disgust','fear','happiness','neutrality','sadness','surpise']
+# class_labels=['Angry','Happy','Neutral','Sad','Surprise']
+# class_labels = ['anger','disgust','fear','happiness','neutrality','sadness','surpise']
+class_labels = ['Angry','Disgust','Fear','Happy','Neutral','Sad','Surprise']
 class DetectEmotion(object):
     def __init__(self):
         self.cap=cv2.VideoCapture(0)
@@ -24,23 +26,11 @@ class DetectEmotion(object):
         labels=[]
         gray=cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
         faces=face_classifier.detectMultiScale(gray,1.3,5)
-
-            # img = cv2.imread('Test_Images/happiness/'+str(j)+'.png')
-            # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            # imgs = cv2.resize(gray, (28,28), interpolation = cv2.INTER_CUBIC)
-            # imgs = np.asarray(imgs, dtype='float32')
-            # imgs = imgs.reshape(-1,28,28,1)
-            # imgs = imgs/255.0
-            # pred = model.predict_classes(imgs)
-            # print(pred_list[pred[0]])
     
         for (x,y,w,h) in faces:
             cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
             roi_gray=gray[y:y+h,x:x+w]
             roi_gray=cv2.resize(roi_gray,(28,28),interpolation=cv2.INTER_AREA)
-            # img = np.asarray(roi_gray, dtype='float32')
-            # img.reshape(-1,28,28,1)
-            # img = img/255.0 
             
             if np.sum([roi_gray])!=0:
                 roi=roi_gray.astype('float')/255.0
@@ -50,11 +40,10 @@ class DetectEmotion(object):
                 global graph
                 with graph.as_default():
                     set_session(sess)
-                    # model = load_model('static/model_test.h5')
-                    # pred = model.predict_classes(img)
-                    print("Performing prediction")
-                    # label=pred_list[pred[0]]
-                    label=pred_list[1]
+                    classifier = load_model('static/best_model.h5')
+                    preds=classifier.predict(roi)[0]
+                    print("Predicting....")
+                    label=class_labels[preds.argmax()]
                     label_position=(x,y)
                     print(label)
                 cv2.putText(frame,label,label_position,cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,0),3)
