@@ -8,10 +8,12 @@ import tensorflow as tf
 from tensorflow.python.keras.backend import set_session
 
 
+tf.compat.v1.disable_eager_execution()
 sess = tf.compat.v1.Session()
 graph = tf.compat.v1.get_default_graph()
 set_session(sess)
 face_classifier=cv2.CascadeClassifier('static/haarcascade_frontalface_default.xml')
+model = load_model('static/best_model.h5')
 
 # class_labels=['Angry','Happy','Neutral','Sad','Surprise']
 # class_labels = ['anger','disgust','fear','happiness','neutrality','sadness','surpise']
@@ -40,9 +42,8 @@ class DetectEmotion(object):
                 global graph
                 with graph.as_default():
                     set_session(sess)
-                    classifier = load_model('static/best_model.h5')
-                    preds=classifier.predict(roi)[0]
                     print("Predicting....")
+                    preds=model.predict(roi)[0]
                     label=class_labels[preds.argmax()]
                     label_position=(x,y)
                     print(label)
