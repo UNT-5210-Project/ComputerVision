@@ -45,9 +45,12 @@ class DetectEmotion(object):
                     print("Predicting....")
                     preds=model.predict(roi)[0]
                     label=class_labels[preds.argmax()]
+                    perentage_value = "{:.2f}".format(preds[preds.argmax()] * 100)
+                    percentage_str = perentage_value + '%'
                     label_position=(x,y)
-                    print(label)
-                cv2.putText(frame,label,label_position,cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,0),3)
+                    display_value = label + ": " + percentage_str
+                    print(display_value)
+                cv2.putText(frame,display_value,label_position,cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,0),3)
             else:
                 cv2.putText(frame,'No Face Found',(20,20),cv2.FONT_HERSHEY_SIMPLEX,2,(0,255,0),3)
         ret, jpeg = cv2.imencode('.jpg', frame)
